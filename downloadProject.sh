@@ -19,6 +19,9 @@ fi
 # Добавление уникального тега к ссылке
 latest_release_url="${latest_release_url}?t=$(date +%s)"
 
+# Вывод ссылки для отладки
+echo "Ссылка для скачивания архива: $latest_release_url"
+
 # Скачивание архива
 echo "Скачивание архива последнего релиза..."
 curl -L -o latest_release.tar.gz "$latest_release_url"
