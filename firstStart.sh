@@ -7,6 +7,49 @@ clear
 echo "Это первый запуск инструмента \033[1mFarmJam Helper\033[0m."
 echo "Я помощник по настройке"
 echo
+echo "Проверяю что все нужные пакеты установлены"
+
+# Функция для проверки наличия пакета
+check_package() {
+    local package_name="$1"
+    local check_command="$2"
+    local install_command="$3"
+
+    if ! command -v "$check_command" &> /dev/null; then
+        echo "Пакет \033[1m$package_name\033[0m не установлен! Для установки выполни команду: \033[1m$install_command\033[0m, а после перезапусти скрипт firstStart.sh"
+        exit 1
+    fi
+}
+
+# Функция для проверки доступности команды из любого места
+check_command_in_path() {
+    local command_name="$1"
+
+    if ! which "$command_name" &> /dev/null; then
+        echo "Команда \033[1m$command_name\033[0m не доступна из любого места консоли! Убедитесь, что путь к исполняемому файлу добавлен в переменную окружения PATH. Для исправления добавьте путь к $command_name в PATH."
+        exit 1
+    fi
+}
+
+# Проверка наличия Homebrew
+check_package "Homebrew" "brew" "bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+
+# Проверка наличия adb
+check_package "adb" "adb" "brew install android-platform-tools"
+
+# Проверка доступности adb из любого места
+check_command_in_path "adb"
+
+# Проверка наличия .NET SDK
+check_package ".NET SDK" "dotnet" "brew install --cask dotnet-sdk"
+
+# Проверка наличия jq
+check_package "jq" "jq" "brew install jq"
+
+echo "Все необходимые пакеты установлены!"
+
+# Запрос пути к папке
+echo
 echo "Введи путь к папке, куда будут скачены нужные bash скрипты"
 echo "(если оставить пустым и нажать Enter, установка произойдет в $HOME/Documents/farmx):"
 
