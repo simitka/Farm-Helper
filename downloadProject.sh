@@ -6,44 +6,47 @@ if [[ ! -f settings.conf ]]; then
     exit 1
 fi
 
-# Установка переменных
-REPO_OWNER="Simitka"
-REPO_NAME="FarmJam-Helper"
-API_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
-ARCHIVE_NAME="farmjam-helper-latest.tar.gz"
+# Получение информации о последнем релизе из GitHub
+echo "Получение информации о последнем релизе..."
+latest_release_url=$(curl -s https://api.github.com/repos/Simitka/FarmJam-Helper/releases/latest | jq -r '.tarball_url')
 
-# Генерация уникального параметра для URL
-UNIQUE_PARAM=$(date +%s)
-
-# Получение информации о последнем релизе с помощью GitHub API
-RELEASE_INFO=$(curl -sL "$API_URL")
-
-# Извлечение ссылки на архив последнего релиза
-DOWNLOAD_URL=$(echo "$RELEASE_INFO" | grep -oE '"browser_download_url": "[^"]*"' | grep -Eo '"browser_download_url": "[^"]*"' | grep -Eo '"[^"]*"' | sed 's/"//g' | grep 'tar.gz' | head -1)
-
-# Проверка на наличие ссылки на архив
-if [[ -z "$DOWNLOAD_URL" ]]; then
-    echo "Не удалось найти последний релиз."
+# Проверка на успешное получение URL
+if [[ -z "$latest_release_url" ]]; then
+    echo "Не удалось получить информацию о последнем релизе. Попробуй позже."
     exit 1
 fi
 
-# Формирование уникальной ссылки для скачивания
-DOWNLOAD_URL="${DOWNLOAD_URL}?t=${UNIQUE_PARAM}"
+# Добавление уникального тега к ссылке
+latest_release_url="${latest_release_url}?t=$(date +%s)"
 
 # Скачивание архива
-echo "Скачиваю архив с последним релизом: $DOWNLOAD_URL"
-curl -LO "$DOWNLOAD_URL"
+echo "Скачивание архива последнего релиза..."
+curl -L -o latest_release.tar.gz "$latest_release_url"
+
+# Проверка успешности скачивания
+if [[ $? -ne 0 ]]; then
+    echo "Ошибка при скачивании архива. Попробуй позже."
+    exit 1
+fi
 
 # Распаковка архива
-echo "Распаковываю архив..."
-tar -xzvf "$ARCHIVE_NAME" -C .
+echo "Распаковка архива..."
+tar -xzf latest_release.tar.gz
+
+# Проверка успешности распаковки
+if [[ $? -ne 0 ]]; then
+    echo "Ошибка при распаковке архива."
+    exit 1
+fi
+
+# Удаление архива
+rm latest_release.tar.gz
 
 # Запуск скрипта update.sh
 if [[ -f update.sh ]]; then
-    echo "Запускаю update.sh..."
-    chmod +x update.sh
+    echo "Запуск скрипта update.sh..."
     ./update.sh
 else
-    echo "Файл update.sh не найден."
+    echo "Скрипт update.sh не найден."
     exit 1
 fi
