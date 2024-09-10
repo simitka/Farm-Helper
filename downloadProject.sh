@@ -11,8 +11,11 @@ REPO_URL="https://github.com/Simitka/FarmJam-Helper"
 RELEASES_URL="https://github.com/Simitka/FarmJam-Helper/releases/latest"
 ARCHIVE_NAME="farmjam-helper-latest.tar.gz"
 
+# Генерация уникального параметра для URL
+UNIQUE_PARAM=$(date +%s)
+
 # Скачивание URL страницы с последним релизом
-LATEST_RELEASE=$(curl -sL $RELEASES_URL | grep -oE 'href="[^"]*"' | grep -Eo 'href="[^"]*"' | head -1 | sed 's/href="//' | sed 's/"//')
+LATEST_RELEASE=$(curl -sL "$RELEASES_URL" | grep -oE 'href="[^"]*"' | grep -Eo 'href="[^"]*"' | head -1 | sed 's/href="//' | sed 's/"//')
 
 # Проверка на наличие ссылки на архив
 if [[ -z "$LATEST_RELEASE" ]]; then
@@ -20,9 +23,12 @@ if [[ -z "$LATEST_RELEASE" ]]; then
     exit 1
 fi
 
+# Формирование уникальной ссылки для скачивания
+DOWNLOAD_URL="${LATEST_RELEASE}?t=${UNIQUE_PARAM}"
+
 # Скачивание архива
-echo "Скачиваю архив с последним релизом: $LATEST_RELEASE"
-curl -LO "$LATEST_RELEASE"
+echo "Скачиваю архив с последним релизом: $DOWNLOAD_URL"
+curl -LO "$DOWNLOAD_URL"
 
 # Распаковка архива
 echo "Распаковываю архив..."
