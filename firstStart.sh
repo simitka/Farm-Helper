@@ -32,7 +32,10 @@ check_command_in_path() {
 }
 
 # Проверка наличия Homebrew
-check_package "Homebrew" "brew" "bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+if ! command -v brew &> /dev/null; then
+    echo "Пакет Homebrew не установлен! Для установки выполни команду: \033[1m/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\033[0m, а после перезапусти скрипт firstStart.sh"
+    exit 1
+fi
 
 # Проверка наличия adb
 check_package "adb" "adb" "brew install android-platform-tools"
