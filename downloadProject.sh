@@ -6,25 +6,29 @@ if [[ ! -f settings.conf ]]; then
     exit 1
 fi
 
-# Установка переменной для хранения пути к Github репозиторию и URL для скачивания
-REPO_URL="https://github.com/Simitka/FarmJam-Helper"
-RELEASES_URL="https://github.com/Simitka/FarmJam-Helper/releases/latest"
+# Установка переменных
+REPO_OWNER="Simitka"
+REPO_NAME="FarmJam-Helper"
+API_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
 ARCHIVE_NAME="farmjam-helper-latest.tar.gz"
 
 # Генерация уникального параметра для URL
 UNIQUE_PARAM=$(date +%s)
 
-# Скачивание URL страницы с последним релизом
-LATEST_RELEASE=$(curl -sL "$RELEASES_URL" | grep -oE 'href="[^"]*"' | grep -Eo 'href="[^"]*"' | head -1 | sed 's/href="//' | sed 's/"//')
+# Получение информации о последнем релизе с помощью GitHub API
+RELEASE_INFO=$(curl -sL "$API_URL")
+
+# Извлечение ссылки на архив последнего релиза
+DOWNLOAD_URL=$(echo "$RELEASE_INFO" | grep -oE '"browser_download_url": "[^"]*"' | grep -Eo '"browser_download_url": "[^"]*"' | grep -Eo '"[^"]*"' | sed 's/"//g' | grep 'tar.gz' | head -1)
 
 # Проверка на наличие ссылки на архив
-if [[ -z "$LATEST_RELEASE" ]]; then
+if [[ -z "$DOWNLOAD_URL" ]]; then
     echo "Не удалось найти последний релиз."
     exit 1
 fi
 
 # Формирование уникальной ссылки для скачивания
-DOWNLOAD_URL="${LATEST_RELEASE}?t=${UNIQUE_PARAM}"
+DOWNLOAD_URL="${DOWNLOAD_URL}?t=${UNIQUE_PARAM}"
 
 # Скачивание архива
 echo "Скачиваю архив с последним релизом: $DOWNLOAD_URL"
