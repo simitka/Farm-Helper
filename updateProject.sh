@@ -55,26 +55,46 @@ fi
 # Обновление файла settings.conf
 echo "Обновление файла settings.conf..."
 settings_file="settings.conf"
+current_datetime=$(date +"%Y-%m-%dT%H:%M:%S")
+current_path=$(pwd)
+
 if [[ -f $settings_file ]]; then
-    # Обновление существующего параметра
-    if grep -q "^tagVersion=" $settings_file; then
-        # Обновление параметра
-        sed -i '' "s/^tagVersion=.*/tagVersion=$tag_name/" $settings_file
+    # Проверка наличия параметра lastUpdateCheck
+    if grep -q "^lastUpdateCheck:" $settings_file; then
+        # Обновление значения параметра
+        sed -i '' "s/^lastUpdateCheck:.*/lastUpdateCheck:$current_datetime/" $settings_file
+        if [[ $? -ne 0 ]]; then
+            echo "Ошибка при обновлении параметра lastUpdateCheck в $settings_file."
+            exit 1
+        fi
+    else
+        # Добавление нового параметра
+        echo "lastUpdateCheck:$current_datetime" >> $settings_file
+        if [[ $? -ne 0 ]]; then
+            echo "Ошибка при добавлении параметра lastUpdateCheck в $settings_file."
+            exit 1
+        fi
+    fi
+
+    # Обновление существующего параметра tagVersion
+    if grep -q "^tagVersion:" $settings_file; then
+        sed -i '' "s/^tagVersion:.*/tagVersion:$tag_name/" $settings_file
         if [[ $? -ne 0 ]]; then
             echo "Ошибка при обновлении параметра tagVersion в $settings_file."
             exit 1
         fi
     else
-        # Добавление нового параметра
-        echo "tagVersion=$tag_name" >> $settings_file
+        echo "tagVersion:$tag_name" >> $settings_file
         if [[ $? -ne 0 ]]; then
             echo "Ошибка при добавлении параметра tagVersion в $settings_file."
             exit 1
         fi
     fi
 else
-    # Создание нового файла и добавление параметра
-    echo "tagVersion=$tag_name" > $settings_file
+    # Создание нового файла и добавление параметров
+    echo "tagVersion:$tag_name" > $settings_file
+    echo "lastUpdateCheck:$current_datetime" >> $settings_file
+    echo "actual_path:$current_path" >> $settings_file
     if [[ $? -ne 0 ]]; then
         echo "Ошибка при создании файла $settings_file."
         exit 1
@@ -85,15 +105,11 @@ fi
 echo "Для продолжения нажми любую кнопку..."
 read -n1 -s
 
-# Переход в папку с bash скриптами
-cd bashScript
-
 # Запуск скрипта menu.sh
-if [[ -f menu.sh ]]; then
-    echo "Запуск скрипта menu.sh..."
-    ./menu.sh
+if [[ -f start.sh ]]; then
+    echo "Запуск скрипта start.sh..."
+    ./start.sh
 else
-    echo "Скрипт menu.sh не найден."
+    echo "Скрипт start.sh не найден."
     exit 1
 fi
-
