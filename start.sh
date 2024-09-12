@@ -1,55 +1,71 @@
 #!/bin/zsh
 
-# Путь к файлу settings.conf
-settings_file="$HOME/Documents/farmx/settings.conf"
+# Путь к файлу settings.conf в текущей папке
+settings_file="./settings.conf"
 
 # Функция для получения текущей даты и времени в формате ISO 8601
 get_current_datetime() {
     date -u +"%Y-%m-%dT%H:%M:%SZ"
 }
 
-# Функция для получения даты и времени из файла settings.conf
-get_last_update() {
-    grep '^lastUpdate:' "$settings_file" | cut -d':' -f2 | xargs
+# Функция для получения значения из settings.conf по ключу
+get_value_from_settings() {
+    local key=$1
+    grep "^$key:" "$settings_file" | cut -d':' -f2 | xargs
 }
+
+# Получение пути к текущей директории
+current_directory=$(pwd)
 
 # Создание файла settings.conf, если его нет
 if [[ ! -f "$settings_file" ]]; then
     echo "Файл settings.conf не найден. Создаем..."
-    echo "lastUpdate:0000-01-01T00:00:00" > "$settings_file"
+    echo "lastUpdateCheck:0000-01-01T00:00:00" > "$settings_file"
+    echo "tagVersion:0.0" >> "$settings_file"
+    echo "actual_path:$current_directory" >> "$settings_file"
 fi
 
-# Получение последнего обновления
-last_update=$(get_last_update)
+# Получение значения tagVersion из settings.conf
+tag_version=$(get_value_from_settings "tagVersion")
 
-# Получение текущего времени
-current_time=$(get_current_datetime)
-
-# Проверка, если lastUpdate отсутствует или имеет некорректное значение
-if [[ -z "$last_update" || "$last_update" == "0000-01-01T00:00:00" ]]; then
-    echo "lastUpdate не найден или имеет некорректное значение. Устанавливаем начальное значение..."
-    last_update="0000-01-01T00:00:00"
+# Проверка и установка значения tagVersion, если его нет
+if [[ -z "$tag_version" ]]; then
+    echo "tagVersion не найден. Устанавливаем начальное значение..."
+    tag_version="0.0"
+    echo "tagVersion:$tag_version" >> "$settings_file"
 fi
 
-# Конвертация даты и времени в секунды с начала эпохи Unix для сравнения
-last_update_seconds=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$last_update" "+%s")
-current_time_seconds=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$current_time" "+%s")
+# Функция для получения тега последнего релиза или пререлиза
+get_latest_tag() {
+    local release_url="https://api.github.com/repos/Simitka/Farm-Helper/releases/latest"
+    local prerelease_url="https://api.github.com/repos/Simitka/Farm-Helper/releases?per_page=100"
+    
+    # Получение последнего релиза
+    latest_release_tag=$(curl -s "$release_url" | jq -r '.tag_name // empty')
+    
+    # Получение пререлизов и выбор самого нового
+    latest_prerelease_tag=$(curl -s "$prerelease_url" | jq -r '.[] | select(.prerelease == true) | .tag_name' | sort -V | tail -n 1)
+    
+    # Сравнение тега релиза и пререлиза
+    if [[ -n "$latest_prerelease_tag" && ( -z "$latest_release_tag" || "$latest_prerelease_tag" > "$latest_release_tag" ) ]]; then
+        echo "$latest_prerelease_tag"
+    else
+        echo "$latest_release_tag"
+    fi
+}
 
-# Проверка, прошло ли больше 24 часов с последнего обновления
-let elapsed_time_seconds=current_time_seconds-last_update_seconds
-let one_day_seconds=24*60*60
+# Получение тега последнего релиза или пререлиза
+latest_tag=$(get_latest_tag)
 
-if [[ $elapsed_time_seconds -gt $one_day_seconds ]]; then
-    echo "Прошло больше 24 часов с последнего обновления. Запускаем updateProject.sh..."
-    echo "Для продолжения нажми любую кнопку..."
-    read -r -n 1
-    ./updateProject.sh
-else
-    echo "Прошло меньше 24 часов с последнего обновления. Запускаем menu.sh..."
+# Сравнение тегов и выполнение соответствующего скрипта
+if [[ "$latest_tag" == "$tag_version" || "$latest_tag" < "$tag_version" ]]; then
+    echo "Тег в файле больше или равен тегу последнего релиза/пререлиза. Запускаем menu.sh..."
     echo "Для продолжения нажми любую кнопку..."
     read -r -n 1
     ./bashScript/menu.sh
+else
+    echo "Тег в файле меньше тега последнего релиза/пререлиза. Запускаем updateProject.sh..."
+    echo "Для продолжения нажми любую кнопку..."
+    read -r -n 1
+    ./updateProject.sh
 fi
-
-# Обновление значения lastUpdate в settings.conf
-echo "lastUpdate:$current_time" > "$settings_file"
