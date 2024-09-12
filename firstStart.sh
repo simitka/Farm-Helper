@@ -79,17 +79,12 @@ if mkdir -p "$actual_path"; then
         exit 1
     }
 
-    # Удаление старого файла, если он существует
-    if [[ -f "downloadProject.sh" ]]; then
-        rm "downloadProject.sh"
-    fi
-
     # Скачивание файла с добавлением уникального параметра к URL для избежания кэширования
-    if curl -L -O "https://raw.githubusercontent.com/Simitka/FarmJam-Helper/main/downloadProject.sh?t=$(date +%s)"; then
-        echo "Файл downloadProject.sh успешно скачан."
+    if curl -L -O "https://raw.githubusercontent.com/Simitka/Farm-Helper/main/updateProject.sh?t=$(date +%s)"; then
+        echo "Файл updateProject.sh успешно скачан."
 
         # Сделать файл исполняемым
-        chmod +x downloadProject.sh
+        chmod +x updateProject.sh
 
         # Создание файла settings.conf и запись в него параметров
         echo "actual_path:$actual_path" > settings.conf
@@ -99,9 +94,9 @@ if mkdir -p "$actual_path"; then
         read -rsn1  # Ожидание нажатия любой кнопки
 
         # Запуск файла
-        ./downloadProject.sh        
+        ./updateProject.sh        
     else
-        echo "Произошла ошибка при скачивании файла downloadProject.sh. Проверьте интернет-соединение и URL."
+        echo "Произошла ошибка при скачивании файла updateProject.sh. Проверьте интернет-соединение и URL."
     fi
 else
     echo "Произошла ошибка при создании папки \033[1m$actual_path\033[0m. Проверь указанный путь."

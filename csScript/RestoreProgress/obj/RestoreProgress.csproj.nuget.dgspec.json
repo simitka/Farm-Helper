@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/simitka/Downloads/FarmJam-Helper-1.3/csScript/RestoreProgress/RestoreProgress.csproj": {}
+    "/Users/simitka/Documents/GitHub/Farm-Helper/csScript/RestoreProgress/RestoreProgress.csproj": {}
   },
   "projects": {
-    "/Users/simitka/Downloads/FarmJam-Helper-1.3/csScript/RestoreProgress/RestoreProgress.csproj": {
+    "/Users/simitka/Documents/GitHub/Farm-Helper/csScript/RestoreProgress/RestoreProgress.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/simitka/Downloads/FarmJam-Helper-1.3/csScript/RestoreProgress/RestoreProgress.csproj",
+        "projectUniqueName": "/Users/simitka/Documents/GitHub/Farm-Helper/csScript/RestoreProgress/RestoreProgress.csproj",
         "projectName": "RestoreProgress",
-        "projectPath": "/Users/simitka/Downloads/FarmJam-Helper-1.3/csScript/RestoreProgress/RestoreProgress.csproj",
+        "projectPath": "/Users/simitka/Documents/GitHub/Farm-Helper/csScript/RestoreProgress/RestoreProgress.csproj",
         "packagesPath": "/Users/simitka/.nuget/packages/",
-        "outputPath": "/Users/simitka/Downloads/FarmJam-Helper-1.3/csScript/RestoreProgress/obj/",
+        "outputPath": "/Users/simitka/Documents/GitHub/Farm-Helper/csScript/RestoreProgress/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/simitka/.nuget/NuGet/NuGet.Config"
