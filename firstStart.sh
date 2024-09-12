@@ -1,103 +1,94 @@
-#!/bin/zsh
+#!/bin/bash
 
-# Очистка консоли
+# 1. Чистим консоль
 clear
 
-# Вывод текста
-echo "Это первый запуск инструмента \033[1mFarmJam Helper\033[0m."
-echo "Я помощник по настройке"
+# 2. Выводим текст
+echo "Первый запуск \033[1mFarmJam Helper\033[0m."
+echo "Запускаю помощник по настройке"
 echo
-echo "Проверяю что все нужные пакеты установлены"
+echo "Проверяю что все нужные пакеты установлены:"
 
-# Функция для проверки наличия пакета
+# 3. Проверяем наличие пакетов
 check_package() {
-    local package_name="$1"
-    local check_command="$2"
-    local install_command="$3"
-
-    if ! command -v "$check_command" &> /dev/null; then
-        echo "Пакет \033[1m$package_name\033[0m не установлен! Для установки выполни команду: \033[1m$install_command\033[0m, а после перезапусти скрипт firstStart.sh"
-        exit 1
-    fi
+    command -v "$1" >/dev/null 2>&1
 }
 
-# Функция для проверки доступности команды из любого места
-check_command_in_path() {
-    local command_name="$1"
-
-    if ! which "$command_name" &> /dev/null; then
-        echo "Команда \033[1m$command_name\033[0m не доступна из любого места консоли! Убедитесь, что путь к исполняемому файлу добавлен в переменную окружения PATH. Для исправления добавьте путь к $command_name в PATH."
-        exit 1
-    fi
+install_homebrew() {
+    echo "Homebrew не установлен. Для установки выполните:"
+    echo "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
 }
 
-# Проверка наличия Homebrew
-if ! command -v brew &> /dev/null; then
-    echo "Пакет Homebrew не установлен! Для установки выполни команду: \033[1m/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\033[0m, а после перезапусти скрипт firstStart.sh"
-    exit 1
+install_adb() {
+    echo "adb не установлен. Для установки выполните:"
+    echo "brew install android-platform-tools"
+    echo "Чтобы adb был доступен из любого каталога, добавьте путь к adb в переменную PATH."
+    echo "Выполните следующие команды для добавления пути в PATH:"
+    echo "1. Откройте файл ~/.zshrc в текстовом редакторе:"
+    echo "   nano ~/.zshrc"
+    echo "2. Добавьте следующую строку в конец файла:"
+    echo "   export PATH=\"$(brew --prefix android-platform-tools)/bin:\$PATH\""
+    echo "3. Сохраните изменения и закройте редактор (Ctrl+X, затем Y, затем Enter)."
+    echo "4. Примените изменения командой:"
+    echo "   source ~/.zshrc"
+}
+
+install_dotnet_sdk() {
+    echo "Для установки .NET SDK выполните:"
+    echo "brew install --cask dotnet-sdk"
+}
+
+install_jq() {
+    echo "jq не установлен. Для установки выполните:"
+    echo "brew install jq"
+}
+
+if ! check_package brew; then
+    install_homebrew
 fi
 
-# Проверка наличия adb
-check_package "adb" "adb" "brew install android-platform-tools"
+if ! check_package adb; then
+    install_adb
+fi
 
-# Проверка доступности adb из любого места
-check_command_in_path "adb"
+if ! check_package dotnet; then
+    install_dotnet_sdk
+fi
 
-# Проверка наличия .NET SDK
-check_package ".NET SDK" "dotnet" "brew install --cask dotnet-sdk"
+if ! check_package jq; then
+    install_jq
+fi
 
-# Проверка наличия jq
-check_package "jq" "jq" "brew install jq"
-
-echo "Все необходимые пакеты установлены!"
-
-# Запрос пути к папке
+# 5. Запрашиваем путь к папке
 echo
 echo "Введи путь к папке, куда будут скачены нужные bash скрипты"
 echo "(если оставить пустым и нажать Enter, установка произойдет в $HOME/Documents/farmx):"
 
-# Установка пути по умолчанию
+# 6. Определяем путь и создаем папку
 default_path="$HOME/Documents/farmx"
-
-# Чтение пути от пользователя
 read -r user_path
 
-# Определение фактического пути
 if [[ -z "$user_path" ]]; then
     actual_path="$default_path"
 else
     actual_path="$user_path"
 fi
 
-# Проверка и создание папки
-if mkdir -p "$actual_path"; then
-    echo "Папка \033[1m$actual_path\033[0m готова!"
-    
-    # Переход в созданную папку
-    cd "$actual_path" || {
-        echo "Не удалось перейти в папку \033[1m$actual_path\033[0m."
-        exit 1
-    }
+mkdir -p "$actual_path"
 
-    # Скачивание файла с добавлением уникального параметра к URL для избежания кэширования
-    if curl -L -O "https://raw.githubusercontent.com/Simitka/Farm-Helper/main/updateProject.sh?t=$(date +%s)"; then
-        echo "Файл updateProject.sh успешно скачан."
+# 7. Переходим в созданную папку
+cd "$actual_path" || { echo "Не удалось перейти в папку $actual_path"; exit 1; }
 
-        # Сделать файл исполняемым
-        chmod +x updateProject.sh
+# 8. Скачиваем файл
+curl -O https://raw.githubusercontent.com/Simitka/Farm-Helper/main/start.sh
 
-        # Создание файла settings.conf и запись в него параметров
-        echo "actual_path:$actual_path" > settings.conf
+# 9. Создаем settings.conf
+cat <<EOF > settings.conf
+actualPath:$actual_path
+lastUpdateCheck:0000-01-01T00:00:00
+actualTagVersion:0.0
+EOF
 
-        # Запрос на продолжение
-        echo "Для продолжения нажми любую кнопку..."
-        read -rsn1  # Ожидание нажатия любой кнопки
-
-        # Запуск файла
-        ./updateProject.sh        
-    else
-        echo "Произошла ошибка при скачивании файла updateProject.sh. Проверьте интернет-соединение и URL."
-    fi
-else
-    echo "Произошла ошибка при создании папки \033[1m$actual_path\033[0m. Проверь указанный путь."
-fi
+# 10. Запускаем start.sh
+chmod +x start.sh
+./start.sh
