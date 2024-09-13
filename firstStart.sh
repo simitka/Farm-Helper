@@ -24,7 +24,7 @@ check_and_install() {
         echo "$install_command"
         exit 1
     else
-        echo "[$package_number] $package установлен: $($version_command)"
+        echo "[$package_number] $package установлен: $(eval $version_command)"
     fi
 }
 
@@ -34,16 +34,9 @@ check_and_install "*" "dotnet" "brew install --cask dotnet-sdk" "dotnet --versio
 check_and_install "*" "jq" "brew install jq" "jq --version"
 check_and_install "*" "adb" "brew install android-platform-tools" "adb --version"
 
-# Если adb не найден, выводим дополнительную информацию
-if ! command -v "adb" &> /dev/null; then
-    echo "Чтобы использовать adb из любого каталога, добавьте его в PATH:"
-    echo "export PATH=\"\$PATH:/usr/local/bin\""
-    echo "или"
-    echo "Если вы установили adb с помощью Homebrew, он должен быть уже в PATH."
-fi
-
 # Запрос пути к папке для скачивания файлов
 echo "============================================================"
+echo
 echo
 echo "\033[1mВведи путь к папке, куда будет установлен Farm Helper:\033[0m"
 echo "(оставь пустым и нажми Enter, чтобы установить в $HOME/Documents/farmx)"
@@ -75,7 +68,9 @@ EOL
 
 # Создание консольной команды farmx
 echo
+echo
 echo "\033[1mСоздаю консольную команду 'farmx', которая будет запускать Farm Helper\033[0m"
+echo "(введи пароль своего пользователя MacOS. При вводе пароль не отображается)"
 
 # Проверка и создание директории /usr/local/bin, если необходимо
 if [[ ! -d "/usr/local/bin" ]]; then
