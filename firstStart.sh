@@ -1,94 +1,98 @@
-#!/bin/bash
+#!/bin/zsh
 
-# 1. Чистим консоль
+# Очистка консоли
 clear
 
-# 2. Выводим текст
-echo "Первый запуск \033[1mFarmJam Helper\033[0m."
-echo "Запускаю помощник по настройке"
+# Вывод текста
+echo "\033[1mПервый запуск \033[4mFarm Helper\033[0m"
+echo "вопросы – https://simitka.io"
 echo
-echo "Проверяю что все нужные пакеты установлены:"
+echo "Запускаю помощник по настройке."
+echo "Проверяю что все нужные пакеты установлены"
+echo "============================================================"
 
-# 3. Проверяем наличие пакетов
-check_package() {
-    command -v "$1" >/dev/null 2>&1
+# Функция проверки и установки пакетов
+check_and_install() {
+    local package_number="$1"
+    local package="$2"
+    local install_command="$3"
+    local version_command="$4"
+    
+    if ! command -v "$package" &> /dev/null; then
+        echo "Ошибка: $package не установлен."
+        echo "Для установки $package используйте команду:"
+        echo "$install_command"
+        exit 1
+    else
+        echo "[$package_number] $package установлен: $($version_command)"
+    fi
 }
 
-install_homebrew() {
-    echo "Homebrew не установлен. Для установки выполните:"
-    echo "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-}
+# Проверка установленных пакетов
+check_and_install "*" "brew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" "brew --version"
+check_and_install "*" "dotnet" "brew install --cask dotnet-sdk" "dotnet --version"
+check_and_install "*" "jq" "brew install jq" "jq --version"
+check_and_install "*" "adb" "brew install android-platform-tools" "adb --version"
 
-install_adb() {
-    echo "adb не установлен. Для установки выполните:"
-    echo "brew install android-platform-tools"
-    echo "Чтобы adb был доступен из любого каталога, добавьте путь к adb в переменную PATH."
-    echo "Выполните следующие команды для добавления пути в PATH:"
-    echo "1. Откройте файл ~/.zshrc в текстовом редакторе:"
-    echo "   nano ~/.zshrc"
-    echo "2. Добавьте следующую строку в конец файла:"
-    echo "   export PATH=\"$(brew --prefix android-platform-tools)/bin:\$PATH\""
-    echo "3. Сохраните изменения и закройте редактор (Ctrl+X, затем Y, затем Enter)."
-    echo "4. Примените изменения командой:"
-    echo "   source ~/.zshrc"
-}
-
-install_dotnet_sdk() {
-    echo "Для установки .NET SDK выполните:"
-    echo "brew install --cask dotnet-sdk"
-}
-
-install_jq() {
-    echo "jq не установлен. Для установки выполните:"
-    echo "brew install jq"
-}
-
-if ! check_package brew; then
-    install_homebrew
+# Если adb не найден, выводим дополнительную информацию
+if ! command -v "adb" &> /dev/null; then
+    echo "Чтобы использовать adb из любого каталога, добавьте его в PATH:"
+    echo "export PATH=\"\$PATH:/usr/local/bin\""
+    echo "или"
+    echo "Если вы установили adb с помощью Homebrew, он должен быть уже в PATH."
 fi
 
-if ! check_package adb; then
-    install_adb
-fi
-
-if ! check_package dotnet; then
-    install_dotnet_sdk
-fi
-
-if ! check_package jq; then
-    install_jq
-fi
-
-# 5. Запрашиваем путь к папке
+# Запрос пути к папке для скачивания файлов
+echo "============================================================"
 echo
-echo "Введи путь к папке, куда будут скачены нужные bash скрипты"
-echo "(если оставить пустым и нажать Enter, установка произойдет в $HOME/Documents/farmx):"
+echo "\033[1mВведи путь к папке, куда будет установлен Farm Helper:\033[0m"
+echo "(оставь пустым и нажми Enter, чтобы установить в $HOME/Documents/farmx)"
 
-# 6. Определяем путь и создаем папку
+# Установка пути по умолчанию
 default_path="$HOME/Documents/farmx"
 read -r user_path
 
+# Определение фактического пути
 if [[ -z "$user_path" ]]; then
     actual_path="$default_path"
 else
     actual_path="$user_path"
 fi
 
+# Создание папки
 mkdir -p "$actual_path"
+cd "$actual_path" || exit
 
-# 7. Переходим в созданную папку
-cd "$actual_path" || { echo "Не удалось перейти в папку $actual_path"; exit 1; }
-
-# 8. Скачиваем файл
+# Скачивание файла start.sh
 curl -O https://raw.githubusercontent.com/Simitka/Farm-Helper/main/start.sh
 
-# 9. Создаем settings.conf
-cat <<EOF > settings.conf
+# Создание файла settings.conf
+cat <<EOL > settings.conf
 actualPath:$actual_path
-lastUpdateCheck:0000-01-01T00:00:00
+lastUpdateCheck:0
 actualTagVersion:0.0
-EOF
+EOL
 
-# 10. Запускаем start.sh
+# Создание консольной команды farmx
+echo
+echo "\033[1mСоздаю консольную команду 'farmx', которая будет запускать Farm Helper\033[0m"
+
+# Проверка и создание директории /usr/local/bin, если необходимо
+if [[ ! -d "/usr/local/bin" ]]; then
+    echo "Директория /usr/local/bin не существует. Создаю её..."
+    sudo mkdir -p /usr/local/bin
+fi
+
+# Создание скрипта для запуска start.sh из любого каталога
+temp_script="$HOME/farmx_temp"
+echo '#!/bin/zsh' > "$temp_script"
+echo "cd $actual_path && ./start.sh" >> "$temp_script"
+chmod +x "$temp_script"
+
+# Перемещение скрипта в /usr/local/bin и установка прав
+sudo mv "$temp_script" /usr/local/bin/farmx
+sudo chmod +x /usr/local/bin/farmx
+
+# Запуск скрипта start.sh
 chmod +x start.sh
-./start.sh
+farmx
