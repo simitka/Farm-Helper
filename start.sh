@@ -1,76 +1,89 @@
 #!/bin/zsh
 
-# 1. Отчищаем консоль
+# 1. Очищаем консоль
 clear
 
-# 2. Выводим текст
+# 2. Выводим текст с выделением жирным шрифтом
 echo "\033[1mПроверка наличия обновлений FarmJam\033[0m"
+echo
 
-# 3. Читаем файл settings.conf
+# 3. Определяем файл настроек
 settings_file="settings.conf"
 
+# 4. Проверяем существование файла настроек
 if [[ ! -f $settings_file ]]; then
-  echo "Файл settings.conf не найден!"
+  echo "Файл $settings_file не найден!"
   exit 1
 fi
 
+# 5. Читаем параметры из файла настроек
 last_update_check=$(grep '^lastUpdateCheck:' $settings_file | cut -d':' -f2)
 actual_tag_version=$(grep '^actualTagVersion:' $settings_file | cut -d':' -f2)
 
+# 6. Проверяем наличие необходимых данных в файле настроек
 if [[ -z $last_update_check || -z $actual_tag_version ]]; then
-  echo "Не удалось получить данные из settings.conf"
+  echo "Не удалось получить данные из $settings_file"
   exit 1
 fi
 
-# Преобразуем timestamp в секунды
+# 7. Преобразуем значение lastUpdateCheck в секунды
 last_update_check_sec=$(date -j -f "%s" "$last_update_check" "+%s")
+
+# 8. Получаем текущее время в секундах
 current_time_sec=$(date "+%s")
+
+# 9. Вычисляем разницу во времени в часах
 time_diff=$(( (current_time_sec - last_update_check_sec) / 3600 ))
 
-# 4. Проверяем, прошло ли менее 24 часов
+# 10. Проверяем, прошло ли менее 24 часов с момента последней проверки
 if (( time_diff < 24 )); then
-  bash bashScript/menu.sh
+  # Если проверка уже была в течение последних 24 часов, запускаем главное меню и выходим
+  ./bashScript/menu.sh
   exit 0
 fi
 
-# 6. Получаем тег последнего релиза из GitHub
+# 11. Получаем тег последнего релиза из GitHub
 repo="Simitka/Farm-Helper"
 latest_tag=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | jq -r .tag_name)
 
+# 12. Проверяем, удалось ли получить последний тег релиза
 if [[ -z $latest_tag ]]; then
   echo "Не удалось получить последний тег релиза"
   exit 1
 fi
 
-# 7. Сравниваем теги
+# 13. Сравниваем текущий тег и тег последнего релиза
 if [[ "$latest_tag" == "$actual_tag_version" || "$(echo -e "$latest_tag\n$actual_tag_version" | sort -V | head -n1)" == "$latest_tag" ]]; then
-  bash bashScript/menu.sh
+  # Если обновление не требуется, обновляем lastUpdateCheck и запускаем главное меню
+  sed -i '' "s/^lastUpdateCheck:.*/lastUpdateCheck:$(date +%s)/" $settings_file
+  ./bashScript/menu.sh
   exit 0
 fi
 
-# 9. Скачиваем архив
+# 14. Скачиваем архив с новым релизом
+echo "Найдено обновление. Текущая версия = $actual_tag_version, новая версия = $latest_tag"
+echo "Обновление..."
 archive_url="https://api.github.com/repos/$repo/zipball/$latest_tag"
-archive_name="archive.zip"
+archive_name="release-$latest_tag.zip"
 
 curl -L $archive_url -o $archive_name
 
-# 10. Удаляем все файлы кроме settings.conf и архива
+# 15. Удаляем все файлы, кроме settings.conf и архива
 find . -maxdepth 1 -type f ! -name "$settings_file" ! -name "$archive_name" -exec rm {} \;
 
-# 11. Распаковываем архив
+# 16. Распаковываем архив в временную директорию
 unzip -o $archive_name -d temp_dir
 
-# 12. Перемещаем файлы из распакованной папки в текущую директорию
+# 17. Перемещаем файлы из временной директории в текущую папку
 mv temp_dir/*/* .
 
-# 13. Удаляем временные папки и архив
+# 18. Удаляем временные файлы и папки
 rm -r temp_dir
 rm $archive_name
 
-# 14. Обновляем настройки
-echo "actualPath:/Users/simitka/Documents/farmx" > $settings_file
-echo "lastUpdateCheck:$(date +%s)" >> $settings_file
-echo "actualTagVersion:$latest_tag" >> $settings_file
+# 19. Обновляем файл настроек с новым тегом и меткой времени
+sed -i '' "s/^actualTagVersion:.*/actualTagVersion:$latest_tag/" $settings_file
+sed -i '' "s/^lastUpdateCheck:.*/lastUpdateCheck:$(date +%s)/" $settings_file
 
-# 15. Запускаем скрипт
-bash bashScript/menu.sh
+# 20. Запускаем главное меню
+./bashScript/menu.sh
