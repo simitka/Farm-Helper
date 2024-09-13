@@ -63,6 +63,7 @@ fi
 # 14. Скачиваем архив с новым релизом
 echo "Найдено обновление. Текущая версия = $actual_tag_version, новая версия = $latest_tag"
 echo "Обновление..."
+echo
 archive_url="https://api.github.com/repos/$repo/zipball/$latest_tag"
 archive_name="release-$latest_tag.zip"
 
