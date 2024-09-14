@@ -32,7 +32,7 @@ fi
 echo "Подключено несколько устройств. Введи номер нужного:"
 i=1
 while IFS= read -r device; do
-  echo "[$i] $device"
+  echo "    [$i] $device"
   ((i++))
 done <<< "$devices"
 
