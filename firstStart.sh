@@ -3,12 +3,18 @@
 # Очистка консоли
 clear
 
+# Функция для вывода текста жирным шрифтом
+bold_text() {
+  local text="$1"
+  echo "\033[1m$text\033[0m"
+}
+
 # Вывод текста
-echo "\033[1mПервый запуск \033[4mFarm Helper\033[0m"
+bold_text "Первый запуск \033[4mFarm Helper\033[0m"
 echo "вопросы – https://simitka.io"
 echo
 echo "Запускаю помощник по настройке."
-echo "Проверяю что все нужные пакеты установлены"
+echo "Проверяю, что все нужные пакеты установлены"
 echo "============================================================"
 
 # Функция проверки и установки пакетов
@@ -19,18 +25,35 @@ check_and_install() {
     local version_command="$4"
     
     if ! command -v "$package" &> /dev/null; then
-        echo "Ошибка: $package не установлен."
+        echo
+        bold_text "Ошибка: $package не установлен."
         echo "Для установки $package используйте команду:"
         echo "$install_command"
+        echo
         exit 1
     else
         echo "[$package_number] $package установлен: $(eval $version_command)"
     fi
 }
 
+# Функция проверки установки dotnet-script
+check_dotnet_script() {
+    if ! dotnet tool list -g | grep -q "dotnet-script"; then
+        echo
+        bold_text "Ошибка: dotnet-script не установлен."
+        echo "Для установки dotnet-script используйте команду:"
+        echo "dotnet tool install -g dotnet-script"
+        echo
+        exit 1
+    else
+        echo "[*] dotnet-script установлен: $(dotnet script --version)"
+    fi
+}
+
 # Проверка установленных пакетов
 check_and_install "*" "brew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" "brew --version"
 check_and_install "*" "dotnet" "brew install --cask dotnet-sdk" "dotnet --version"
+check_dotnet_script
 check_and_install "*" "jq" "brew install jq" "jq --version"
 check_and_install "*" "adb" "brew install android-platform-tools" "adb --version"
 
