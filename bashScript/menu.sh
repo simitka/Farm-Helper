@@ -51,7 +51,9 @@ while true; do
         ;;            
       5)
         echo "Запуск скрипта changeLevel.sh..."
-        ./changeLevel.sh
+        #./changeLevel.sh
+        dotnet script dotnetScript/changeLevelDeeplink.csx --no-cache
+
         ;;
       6)
         echo "Запуск скрипта readProfile.sh..."
