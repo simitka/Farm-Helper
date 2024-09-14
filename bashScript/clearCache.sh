@@ -23,7 +23,6 @@ fi
 if [[ $device_count -eq 1 ]]; then
   # Если одно устройство
   device=$(echo "$devices" | head -n 1)
-  echo
   echo "Очищаем кэш приложения farm.parking.game для устройства $device..."
   adb -s $device shell pm clear farm.parking.game
   finalize 0
