@@ -76,7 +76,7 @@ find . -maxdepth 1 -type f ! -name "$settings_file" ! -name "$archive_name" -exe
 unzip -o $archive_name -d temp_dir
 
 # 17. Перемещаем файлы из временной директории в текущую папку
-mv temp_dir/*/* .
+mv temp_dir/* temp_dir/.* .
 
 # 18. Удаляем временные файлы и папки
 rm -r temp_dir
