@@ -1,18 +1,89 @@
 #!/bin/zsh
 
-# Очищаем консоль
-clear
-
 # Функция для вывода текста жирным шрифтом
 bold_text() {
   local text="$1"
   echo "\033[1m$text\033[0m"
 }
 
+# Функция для вывода сообщения и выполнения команды farmx
+function finalize() {
+  echo
+  echo "Чтобы продолжить, нажмите любую кнопку..."
+  stty -icanon
+  dd bs=1 count=1 >/dev/null 2>&1
+  stty icanon
+  farmx
+}
+
+function choose_adb() {
+  local script_name="$1"
+
+  # Очищаем консоль
+  clear
+
+  # Получаем список подключенных устройств, исключая пустые строки и строки "unauthorized", "offline" и т.д.
+  devices=($(adb devices | awk 'NR>1 && $2=="device" {print $1}'))
+  device_count=${#devices[@]}
+
+  if [[ $device_count -eq 0 ]]; then
+    echo "Нет подключенных к ADB устройств."
+    finalize
+    exit 1
+  fi
+
+  # Если одно устройство
+  if [[ $device_count -eq 1 ]]; then
+    device=${devices[1]}
+    eval $script_name "$device"
+    exit 0
+  fi
+
+  # Если несколько устройств
+  echo "Подключено несколько устройств. Введи номер нужного:"
+  echo "    [0] Почистить кэш для всех устройств"
+
+  for ((i = 0; i < device_count; i++)); do
+    echo "    [$((i + 1))] ${devices[i + 1]}"
+  done
+
+  echo -n "Введите номер устройства для очистки кэша: "
+  read device_choice
+  echo
+
+  # Проверка корректности ввода
+  if ! [[ $device_choice =~ ^[0-9]+$ ]] || [[ $device_choice -lt 0 ]] || [[ $device_choice -gt $device_count ]]; then
+    echo "Некорректный выбор устройства."
+    finalize
+    exit 1
+  fi
+
+  if [[ $device_choice -eq 0 ]]; then
+    # Очистка кэша для всех устройств
+    for device in "${devices[@]}"; do
+      eval $script_name "$devices"
+    done
+  else
+    # Получаем выбранное устройство
+    selected_device=${devices[$((device_choice))]}
+    eval $script_name "$selected_device"
+  fi
+
+  finalize
+  exit 0
+}
+
+#
+#
+#
+
+# Очищаем консоль
+clear
+
+# Выводим меню выбора
 while true; do
-  # Выводим меню выбора
   bold_text "Farm Helper"
-  
+
   echo "Чтобы закрыть скрипт нажмите Control⌃ + C"
   echo "Чтобы запустить скрипт введите 'farmx' в Терминале"
   echo
@@ -33,38 +104,37 @@ while true; do
   if [[ "$choice" =~ ^[1-7]$ ]]; then
     # Обработка выбора пользователя
     case "$choice" in
-      1)
-        echo "Запуск скрипта clearCache.sh..."
-        ./bashScript/clearCache.sh
-        ;;
-      2)
-        echo "Запуск скрипта installApp.sh..."
-        ./installApp.sh
-        ;;
-      3)
-        echo "Запуск скрипта deleteApp.sh..."
-        ./deleteApp.sh
-        ;;    
-      4)
-        echo "Запуск скрипта deepLink.sh..."
-        ./deepLink.sh
-        ;;            
-      5)
-        echo "Запуск скрипта changeLevel.sh..."
-        #./changeLevel.sh
-        dotnet script dotnetScript/changeLevelDeeplink.csx --no-cache
+    1)
+      choose_adb "./clearCache.sh"
+      ;;
+    2)
+      echo "Запуск скрипта installApp.sh..."
+      ./installApp.sh
+      ;;
+    3)
+      echo "Запуск скрипта deleteApp.sh..."
+      ./deleteApp.sh
+      ;;
+    4)
+      echo "Запуск скрипта deepLink.sh..."
+      ./deepLink.sh
+      ;;
+    5)
+      echo "Запуск скрипта changeLevel.sh..."
+      #./changeLevel.sh
+      dotnet script dotnetScript/changeLevelDeeplink.csx --no-cache
 
-        ;;
-      6)
-        echo "Запуск скрипта readProfile.sh..."
-        ./readProfile.sh
-        ;;      
-      7)
-        echo "Запуск скрипта clearUnityCache.sh..."
-        ./clearUnityCache.sh
-        ;;                  
+      ;;
+    6)
+      echo "Запуск скрипта readProfile.sh..."
+      ./readProfile.sh
+      ;;
+    7)
+      echo "Запуск скрипта clearUnityCache.sh..."
+      ./clearUnityCache.sh
+      ;;
     esac
-    break  # Выход из цикла после успешного выбора
+    break # Выход из цикла после успешного выбора
   else
     # Обработка неверного ввода
     clear
