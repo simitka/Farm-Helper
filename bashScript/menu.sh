@@ -105,7 +105,7 @@ while true; do
     # Обработка выбора пользователя
     case "$choice" in
     1)
-      choose_adb "./clearCache.sh"
+      choose_adb "./bashScript/clearCache.sh"
       ;;
     2)
       echo "Запуск скрипта installApp.sh..."
