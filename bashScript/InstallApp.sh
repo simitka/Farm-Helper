@@ -53,8 +53,7 @@ clear
 # Переход в каталог actual_path/farmBuilds
 target_dir="$actual_path/farmBuilds"
 if [[ ! -d $target_dir ]]; then
-    echo "Ошибка: Каталог $target_dir не существует!"
-    exit 1
+    mkdir -p "$target_dir"
 fi
 cd "$target_dir"
 
@@ -63,7 +62,7 @@ file_list=(*.apk *.apks)
 
 # Проверка на наличие файлов и вывод в формате [1] файл1
 if [[ ${#file_list[@]} -eq 0 ]]; then
-    echo "Нет файлов с расширением .apk или .apks в папке $target_dir!"
+    echo "Нет файлов с расширением .apk или .apks в папке $target_dir."
     echo -n "Добавьте .apk файлы в указанную выше папку, или "
 else
     echo "Список .apk файлов в папке $target_dir:"
