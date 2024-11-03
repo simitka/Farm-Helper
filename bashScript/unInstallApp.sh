@@ -20,11 +20,11 @@ fi
 # Перебираем все аргументы
 for device in "$@"; do
   # Пропускаем первый аргумент с индексом 0 (там $settings_file)
-  if (( index > 0 )); then
-  echo "Удаляем приложение farm.parking.game для устройства $device..."
-  adb -s "$device" uninstall farm.parking.game
+  if ((index > 0)); then
+    echo "Удаляем приложение farm.parking.game для устройства $device..."
+    adb -s "$device" uninstall farm.parking.game
   fi
-  (( index++ ))
+  ((index++))
 done
 
 echo "Удаление приложения завершено."

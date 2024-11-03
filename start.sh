@@ -42,7 +42,7 @@ last_update_check_sec=$(date -j -f "%s" "$last_update_check" "+%s")
 current_time_sec=$(date "+%s")
 
 # 9. Вычисляем разницу во времени в часах
-time_diff=$(( (current_time_sec - last_update_check_sec) / 3600 ))
+time_diff=$(((current_time_sec - last_update_check_sec) / 3600))
 
 # Если auto_update = true и прошло менее 24 часов с последней проверки, запускаем меню
 if [[ "$auto_update" == "true" && $time_diff -lt 24 ]]; then
@@ -75,20 +75,20 @@ if [[ "$auto_update" == "force" || "$latest_tag" != "$actual_tag_version" ]]; th
   cd $actual_path
 
   if [[ ! -f "$settings_file" ]]; then
-      echo "Ошибка: файл '$settings_file' не найден."
-      exit 1
+    echo "Ошибка: файл '$settings_file' не найден."
+    exit 1
   fi
 
   if [[ ! -f "$archive_name" ]]; then
-      echo "Ошибка: файл '$archive_name' не найден."
-      exit 1
+    echo "Ошибка: файл '$archive_name' не найден."
+    exit 1
   fi
 
   # Удаление всех файлов и папок, кроме указанных
   for item in *; do
-      if [[ "$item" != "$settings_file" && "$item" != "$archive_name" ]]; then
-          rm -rf "$item"  # Удаляет файлы и папки рекурсивно
-      fi
+    if [[ "$item" != "$settings_file" && "$item" != "$archive_name" ]]; then
+      rm -rf "$item" # Удаляет файлы и папки рекурсивно
+    fi
   done
 
   # 17. Распаковываем архив в временную директорию

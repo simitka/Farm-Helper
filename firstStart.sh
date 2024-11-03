@@ -8,8 +8,8 @@ clear
 
 # Функция для вывода текста жирным шрифтом
 bold_text() {
-  local text="$1"
-  echo "\033[1m$text\033[0m"
+    local text="$1"
+    echo "\033[1m$text\033[0m"
 }
 
 # Вывод текста
@@ -26,8 +26,8 @@ check_and_install() {
     local package="$2"
     local install_command="$3"
     local version_command="$4"
-    
-    if ! command -v "$package" &> /dev/null; then
+
+    if ! command -v "$package" &>/dev/null; then
         echo
         bold_text "Ошибка: $package не установлен."
         echo "Для установки $package используйте команду:"
@@ -86,7 +86,7 @@ cd "$actual_path" || exit
 curl -O https://raw.githubusercontent.com/Simitka/Farm-Helper/main/start.sh
 
 # Создание файла settings.conf
-cat <<EOL > settings.conf
+cat <<EOL >settings.conf
 actualPath:$actual_path
 autoUpdate:true
 lastUpdateCheck:0
@@ -107,8 +107,8 @@ fi
 
 # Создание скрипта для запуска start.sh из любого каталога
 temp_script="$HOME/farmx_temp"
-echo '#!/bin/zsh' > "$temp_script"
-echo "cd $actual_path && ./start.sh" >> "$temp_script"
+echo '#!/bin/zsh' >"$temp_script"
+echo "cd $actual_path && ./start.sh" >>"$temp_script"
 chmod +x "$temp_script"
 
 # Перемещение скрипта в /usr/local/bin и установка прав
