@@ -88,6 +88,7 @@ curl -O https://raw.githubusercontent.com/Simitka/Farm-Helper/main/start.sh
 # Создание файла settings.conf
 cat <<EOL > settings.conf
 actualPath:$actual_path
+autoUpdate:true
 lastUpdateCheck:0
 actualTagVersion:0.0
 EOL
