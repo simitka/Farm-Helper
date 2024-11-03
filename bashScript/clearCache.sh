@@ -17,10 +17,14 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 
-# Очистка кэша для каждого устройства, переданного в аргументах
+# Перебираем все аргументы
 for device in "$@"; do
-  echo "Очищаем кэш приложения farm.parking.game для устройства $device..."
-  adb -s "$device" shell pm clear farm.parking.game
+  # Пропускаем первый аргумент с индексом 0 (там $settings_file)
+  if (( index > 0 )); then
+    echo "Очищаем кэш приложения farm.parking.game для устройства $device..."
+    adb -s "$device" shell pm clear farm.parking.game
+  fi
+  (( index++ ))
 done
 
 echo "Очистка кэша приложения завершена."
