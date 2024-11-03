@@ -1,5 +1,18 @@
 #!/bin/zsh
 
+# Выдаем всем .sh файлам в папке права на выполнение
+find . -type f -name "*.sh" -exec chmod +x {} \;
+
+# Проверка наличия аргумента
+if [[ $# -ne 2 ]]; then
+  echo "Ошибка: Во время вызова скрипта переданы не все необходимые аргументы."
+  exit 1
+fi
+
+# Получение пути к файлу настроек из аргумента
+settings_file="$1"
+actual_tag_version="$2"
+
 # Функция для вывода текста жирным шрифтом
 bold_text() {
   local text="$1"
@@ -35,7 +48,7 @@ function choose_adb() {
   # Если одно устройство
   if [[ $device_count -eq 1 ]]; then
     device=${devices[1]}
-    eval $script_name "$device"
+    eval $script_name "$settings_file" "$device"
     exit 0
   fi
 
@@ -61,12 +74,12 @@ function choose_adb() {
   if [[ $device_choice -eq 0 ]]; then
     # Очистка кэша для всех устройств
     for device in "${devices[@]}"; do
-      eval $script_name "$devices"
+      eval $script_name "$settings_file" "$devices"
     done
   else
     # Получаем выбранное устройство
     selected_device=${devices[$((device_choice))]}
-    eval $script_name "$selected_device"
+    eval $script_name "$settings_file" "$selected_device"
   fi
 
   finalize
@@ -82,7 +95,7 @@ clear
 
 # Выводим меню выбора
 while true; do
-  bold_text "Farm Helper"
+  bold_text "Farm Helper v$actual_tag_version"
 
   echo "Чтобы закрыть скрипт нажмите Control⌃ + C"
   echo "Чтобы запустить скрипт введите 'farmx' в Терминале"
@@ -108,12 +121,10 @@ while true; do
       choose_adb "./bashScript/clearCache.sh"
       ;;
     2)
-      echo "Запуск скрипта installApp.sh..."
-      ./installApp.sh
+      choose_adb "./bashScript/installApp.sh"
       ;;
     3)
-      echo "Запуск скрипта deleteApp.sh..."
-      ./deleteApp.sh
+      choose_adb "./bashScript/uninstallApp.sh"
       ;;
     4)
       echo "Запуск скрипта deepLink.sh..."
