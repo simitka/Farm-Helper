@@ -104,9 +104,9 @@ while true; do
   echo "    [1] Почистить кэш приложения"
   echo "    [2] Установить приложение"
   echo "    [3] Удалить приложение"
-  echo "    [4] Создание/Переход по DeepLink"
-  echo "    [5] Установка нужного уровня в приложении | Deeplink/Profile"
-  echo "    [6] Чтение профайлов подключенного по ADB устройства"
+  echo "    [4] Переход по DeepLink"
+  echo "    [5][in progress] Установка нужного уровня в приложении | Deeplink/Profile"
+  echo "    [6][to do] Чтение профайлов подключенного по ADB устройства"
   echo "    [7] Удалить кэш приложения в Unity Editor"
 
   # Ожидание ввода пользователя
@@ -127,8 +127,7 @@ while true; do
       choose_adb "./bashScript/uninstallApp.sh"
       ;;
     4)
-      echo "Запуск скрипта deepLink.sh..."
-      ./deepLink.sh
+      choose_adb "./bashScript/openDeeplink.sh"
       ;;
     5)
       echo "Запуск скрипта changeLevel.sh..."
@@ -137,12 +136,10 @@ while true; do
 
       ;;
     6)
-      echo "Запуск скрипта readProfile.sh..."
-      ./readProfile.sh
+      echo "В процессе разработки"
       ;;
     7)
-      echo "Запуск скрипта clearUnityCache.sh..."
-      ./clearUnityCache.sh
+      ./bashScript/deleteUnityCache.sh
       ;;
     esac
     break # Выход из цикла после успешного выбора
