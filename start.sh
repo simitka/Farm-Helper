@@ -102,8 +102,9 @@ if [[ "$auto_update" == "force" || "$latest_tag" != "$actual_tag_version" ]]; th
   rm $archive_name
 
   # 20. Обновляем файл настроек с новым тегом и меткой времени
-  sed -i '' "s/^actualTagVersion:.*/actualTagVersion:$latest_tag/" $settings_file
   sed -i '' "s/^lastUpdateCheck:.*/lastUpdateCheck:$(date +%s)/" $settings_file
+  sed -i '' "s/^actualTagVersion:.*/actualTagVersion:$latest_tag/" $settings_file
+  actual_tag_version=$latest_tag
 fi
 
 # 21. Запускаем главное меню
