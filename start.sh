@@ -17,6 +17,7 @@ if [[ ! -f $settings_file ]]; then
 fi
 
 # 5. Читаем параметры из файла настроек
+actual_path=$(grep '^actualPath:' $settings_file | cut -d':' -f2)
 last_update_check=$(grep '^lastUpdateCheck:' $settings_file | cut -d':' -f2)
 actual_tag_version=$(grep '^actualTagVersion:' $settings_file | cut -d':' -f2)
 
@@ -69,22 +70,39 @@ archive_name="release-$latest_tag.zip"
 
 curl -L $archive_url -o $archive_name
 
-# 15. Удаляем все файлы, кроме settings.conf и архива
-find . -maxdepth 1 -type f ! -name "$settings_file" ! -name "$archive_name" -exec rm {} \;
+# 15. Проверка наличия файлов $settings_file и $archive_name в папке farmx
+cd $actual_path
 
-# 16. Распаковываем архив в временную директорию
+if [[ ! -f "$settings_file" ]]; then
+    echo "Ошибка: файл '$settings_file' не найден."
+    exit 1
+fi
+
+if [[ ! -f "$archive_name" ]]; then
+    echo "Ошибка: файл '$archive_name' не найден."
+    exit 1
+fi
+
+# Удаление всех файлов и папок, кроме указанных
+for item in *; do
+    if [[ "$item" != "$settings_file" && "$item" != "$archive_name" ]]; then
+        rm -rf "$item"  # Удаляет файлы и папки рекурсивно
+    fi
+done
+
+# 17. Распаковываем архив в временную директорию
 unzip -o $archive_name -d temp_dir
 
-# 17. Перемещаем файлы из временной директории в текущую папку
+# 18. Перемещаем файлы из временной директории в текущую папку
 mv temp_dir/*/* . && mv temp_dir/*/.[!.]* .
 
-# 18. Удаляем временные файлы и папки
+# 19. Удаляем временные файлы и папки
 rm -r temp_dir
 rm $archive_name
 
-# 19. Обновляем файл настроек с новым тегом и меткой времени
+# 20. Обновляем файл настроек с новым тегом и меткой времени
 sed -i '' "s/^actualTagVersion:.*/actualTagVersion:$latest_tag/" $settings_file
 sed -i '' "s/^lastUpdateCheck:.*/lastUpdateCheck:$(date +%s)/" $settings_file
 
-# 20. Запускаем главное меню
+# 21. Запускаем главное меню
 ./bashScript/menu.sh
