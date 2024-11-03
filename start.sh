@@ -31,7 +31,7 @@ fi
 # Проверка значения auto_update
 if [[ "$auto_update" == "false" ]]; then
   # Если auto_update = false, сразу запускаем главное меню и выходим
-  ./bashScript/menu.sh
+  ./bashScript/menu.sh "$settings_file" "$actual_tag_version"
   exit 0
 fi
 
@@ -46,7 +46,7 @@ time_diff=$(( (current_time_sec - last_update_check_sec) / 3600 ))
 
 # Если auto_update = true и прошло менее 24 часов с последней проверки, запускаем меню
 if [[ "$auto_update" == "true" && $time_diff -lt 24 ]]; then
-  ./bashScript/menu.sh
+  ./bashScript/menu.sh "$settings_file" "$actual_tag_version"
   exit 0
 fi
 
@@ -107,4 +107,4 @@ if [[ "$auto_update" == "force" || "$latest_tag" != "$actual_tag_version" ]]; th
 fi
 
 # 21. Запускаем главное меню
-./bashScript/menu.sh
+./bashScript/menu.sh "$settings_file" "$actual_tag_version"
