@@ -86,7 +86,7 @@ if [[ "$auto_update" == "force" || "$latest_tag" != "$actual_tag_version" ]]; th
 
   # Удаление всех файлов и папок, кроме указанных
   for item in *; do
-    if [[ "$item" != "$settings_file" && "$item" != "$archive_name" ]]; then
+    if [[ "$item" != "$settings_file" && "$item" != "$archive_name" && "$item" != "farmBuilds" ]]; then
       rm -rf "$item" # Удаляет файлы и папки рекурсивно
     fi
   done
