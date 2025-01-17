@@ -59,6 +59,7 @@ check_and_install "*" "dotnet" "brew install --cask dotnet-sdk" "dotnet --versio
 check_dotnet_script
 check_and_install "*" "jq" "brew install jq" "jq --version"
 check_and_install "*" "adb" "brew install android-platform-tools" "adb --version"
+check_and_install "*" "git-lfs" "brew install git-lfs" "git lfs version"
 
 # Запрос пути к папке для скачивания файлов
 echo "============================================================"
