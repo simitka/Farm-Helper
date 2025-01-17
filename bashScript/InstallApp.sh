@@ -57,6 +57,11 @@ if [[ ! -d $target_dir ]]; then
 fi
 cd "$target_dir"
 
+# Скачивание
+echo "Скачивание .apk файлов из git lfs.."
+git lfs pull
+clear
+
 # Получение списка файлов с расширением .apk и .apks
 file_list=(*.apk *.apks)
 
