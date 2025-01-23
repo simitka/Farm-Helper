@@ -105,8 +105,8 @@ while true; do
   echo "    [2] Установить приложение"
   echo "    [3] Удалить приложение"
   echo "    [4] Переход по DeepLink"
-  echo "    [5][in progress] Установка нужного уровня в приложении | Deeplink/Profile"
-  echo "    [6][to do] Чтение профайлов подключенного по ADB устройства"
+  echo "    [5] Восстановление уровня с помощью DeepLink (FAR-4168)"
+  echo "    [6] Чтение профайлов подключенного по ADB устройства"
   echo "    [7] Удалить кэш приложения в Unity Editor"
 
   # Ожидание ввода пользователя
@@ -136,7 +136,7 @@ while true; do
 
       ;;
     6)
-      echo "В процессе разработки"
+      ./bashScript/chooseProfile.sh
       ;;
     7)
       ./bashScript/deleteUnityCache.sh
