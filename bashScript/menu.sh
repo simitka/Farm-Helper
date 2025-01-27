@@ -108,13 +108,15 @@ while true; do
   echo "    [5] Восстановление уровня с помощью DeepLink (FAR-4168)"
   echo "    [6] Чтение профайлов подключенного по ADB устройства"
   echo "    [7] Удалить кэш приложения в Unity Editor"
+  echo "    [8] Скачать дамп logcat логов с устройства"
+  echo "    [9] (todo) Почистить logcat логи и начать запись в файл"
 
   # Ожидание ввода пользователя
   echo -n "Введите цифру: "
   read choice
 
   # Проверяем, является ли ввод числом и находится ли он в допустимом диапазоне
-  if [[ "$choice" =~ ^[1-7]$ ]]; then
+  if [[ "$choice" =~ ^[1-9]$ ]]; then
     # Обработка выбора пользователя
     case "$choice" in
     1)
@@ -141,12 +143,18 @@ while true; do
     7)
       ./bashScript/deleteUnityCache.sh
       ;;
+    8)
+      choose_adb "./bashScript/logcatDump.sh"
+      ;;
+    9)
+      ./bashScript/deleteUnityCache.sh
+      ;;            
     esac
     break # Выход из цикла после успешного выбора
   else
     # Обработка неверного ввода
     clear
-    bold_text "Ошибка! Введите число от 1 до 7 и нажмите Enter"
+    bold_text "Ошибка! Введите число от 1 до 9 и нажмите Enter"
     echo "============================================================"
     echo
     echo
