@@ -34,7 +34,7 @@ static class EncryptionUtils
         var array = memoryStream.ToArray();
         var base64String = Convert.ToBase64String(array);
         return Base64ToUrlSafeString(base64String);
-    }       
+    }
 
     private static byte[] DeriveKeyFromPassword(string password)
     {

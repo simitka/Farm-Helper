@@ -4,7 +4,7 @@
 clear
 
 # 2. Выводим текст с выделением жирным шрифтом
-echo "\033[1mПроверка наличия обновлений FarmJam\033[0m"
+echo "\033[1m⏳ Проверка наличия обновлений FarmJam\033[0m"
 echo
 
 # 3. Определяем файл настроек
@@ -12,7 +12,7 @@ settings_file="settings.conf"
 
 # 4. Проверяем существование файла настроек
 if [[ ! -f $settings_file ]]; then
-  echo "Ошибка: Файл $settings_file не найден!"
+  echo "❌ Ошибка: Файл $settings_file не найден"
   exit 1
 fi
 
@@ -24,7 +24,7 @@ actual_tag_version=$(grep '^actualTagVersion:' $settings_file | cut -d':' -f2)
 
 # 6. Проверяем наличие необходимых данных в файле настроек
 if [[ -z $last_update_check || -z $actual_tag_version ]]; then
-  echo "Ошибка: Не удалось получить данные из $settings_file"
+  echo "❌ Ошибка: Не удалось получить данные из $settings_file"
   exit 1
 fi
 
@@ -56,15 +56,15 @@ latest_tag=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | jq -
 
 # 12. Проверяем, удалось ли получить последний тег релиза
 if [[ -z $latest_tag ]]; then
-  echo "Ошибка: Не удалось получить последний тег релиза"
+  echo "❌ Ошибка: Не удалось получить последний тег релиза"
   exit 1
 fi
 
 # Проверка необходимости обновления
 if [[ "$auto_update" == "force" || "$latest_tag" != "$actual_tag_version" ]]; then
   # 14. Скачиваем архив с новым релизом
-  echo "Найдено обновление. Текущая версия = $actual_tag_version, новая версия = $latest_tag"
-  echo "Обновление..."
+  echo "⏳ Найдено обновление. Текущая версия = $actual_tag_version, новая версия = $latest_tag"
+  echo "⏳ Обновление..."
   echo
   archive_url="https://api.github.com/repos/$repo/zipball/$latest_tag"
   archive_name="release-$latest_tag.zip"
@@ -75,12 +75,12 @@ if [[ "$auto_update" == "force" || "$latest_tag" != "$actual_tag_version" ]]; th
   cd $actual_path
 
   if [[ ! -f "$settings_file" ]]; then
-    echo "Ошибка: файл '$settings_file' не найден."
+    echo "❌ Ошибка: файл '$settings_file' не найден"
     exit 1
   fi
 
   if [[ ! -f "$archive_name" ]]; then
-    echo "Ошибка: файл '$archive_name' не найден."
+    echo "❌ Ошибка: файл '$archive_name' не найден"
     exit 1
   fi
 

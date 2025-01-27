@@ -14,7 +14,8 @@ function finalize() {
 }
 
 # Удаляем папку ~/Library/Application Support/Liftapp
+echo "⏳ Удаляю папку ~/Library/Application Support/Liftapp"
 rm -rf ~/Library/Application\ Support/Liftapp
-echo "Кэш farm.parking.game в Unity Editor'е удален."
+echo "✅ Кэш farm.parking.game в Unity Editor'е удален"
 finalize
 exit 0
