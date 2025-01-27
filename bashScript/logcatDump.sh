@@ -46,7 +46,7 @@ for device in "$@"; do
         user_dir=$(realpath "$user_dir")
 
         # Формируем полный путь к файлу с добавлением имени устройства
-        file_name="logs_$(basename "$device").txt"
+        file_name="dumpLogs_$(basename "$device").txt"
         user_path="${user_dir%/}/$file_name" # Убираем возможный слеш в конце пути
 
         # Функция для скачивания дампа логов
