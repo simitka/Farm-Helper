@@ -35,7 +35,7 @@ check_and_install() {
         echo
         exit 1
     else
-        echo "✅ [$package_number] $package установлен: $(eval $version_command)"
+        echo "[$package_number] ✅ $package установлен: $(eval $version_command)"
     fi
 }
 
@@ -49,17 +49,17 @@ check_dotnet_script() {
         echo
         exit 1
     else
-        echo "✅ [*] dotnet-script установлен: $(dotnet script --version)"
+        echo "[5] ✅ dotnet-script установлен: $(dotnet script --version)"
     fi
 }
 
 # Проверка установленных пакетов
-check_and_install "*" "brew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" "brew --version"
-check_and_install "*" "dotnet" "brew install --cask dotnet-sdk" "dotnet --version"
+check_and_install "1" "brew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" "brew --version"
+check_and_install "2" "jq" "brew install jq" "jq --version"
+check_and_install "3" "git-lfs" "brew install git-lfs" "git lfs version"
+check_and_install "4" "dotnet" "brew install --cask dotnet-sdk" "dotnet --version"
 check_dotnet_script
-check_and_install "*" "jq" "brew install jq" "jq --version"
-check_and_install "*" "adb" "brew install android-platform-tools" "adb --version"
-check_and_install "*" "git-lfs" "brew install git-lfs" "git lfs version"
+check_and_install "6" "adb" "brew install android-platform-tools" "adb --version"
 
 # Запрос пути к папке для скачивания файлов
 default_path="$HOME/Documents/farmx"
