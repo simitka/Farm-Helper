@@ -95,6 +95,10 @@ lastUpdateCheck:0
 actualTagVersion:0.0
 EOL
 
+# Добавление dotnet-script в PATH
+echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zshrc
+source ~/.zshrc
+
 # Создание консольной команды farmx
 echo
 echo
