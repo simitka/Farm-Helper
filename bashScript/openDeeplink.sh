@@ -1,14 +1,7 @@
 #!/bin/zsh
 
-# Функция для вывода сообщения и выполнения команды farmx
-function finalize() {
-    echo
-    echo "Чтобы продолжить, нажмите любую кнопку..."
-    stty -icanon
-    dd bs=1 count=1 >/dev/null 2>&1
-    stty icanon
-    farmx
-}
+# Подсключаем utils.sh
+source ./bashScript/utils.sh
 
 # Проверка наличия аргументов
 if [ "$#" -eq 0 ]; then
