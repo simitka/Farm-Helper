@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# Подсключаем utils.sh
+source ./bashScript/utils.sh
+
 # Проверка наличия параметра с названием файла
 if [ -z "$1" ]; then
   echo "❌ Ошибка: Не указано название JSON файла"
@@ -19,7 +22,7 @@ read_file() {
 
   # Информация вверху
   if [ "$interval" -gt 0 ]; then
-    echo "\033[1mЧтобы завершить скрипт нажмите Control⌃ + C\033[0m"
+    bold_text "$(dim_text "Чтобы завершить скрипт нажмите Control⌃ + C")"
     echo ""
     echo "Интервал обновления: $interval секунд"
     echo "Количество обновлений: $update_count"
