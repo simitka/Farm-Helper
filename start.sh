@@ -47,8 +47,8 @@ current_time_sec=$(date "+%s")
 # 9. Вычисляем разницу во времени в часах
 time_diff=$(((current_time_sec - last_update_check_sec) / 3600))
 
-# Если auto_update = true и прошло менее 24 часов с последней проверки, запускаем меню
-if [[ "$auto_update" == "true" && $time_diff -lt 24 ]]; then
+# Если auto_update = true и прошло менее 168 часов с последней проверки, запускаем меню
+if [[ "$auto_update" == "true" && $time_diff -lt 168 ]]; then
   ./bashScript/menu.sh "$settings_file" "$actual_tag_version"
   exit 0
 fi
